@@ -1,0 +1,87 @@
+{
+  "session_id": "",
+  "agent": "",
+  "field": "",
+  "topic": "",
+  "target_journal": "",
+  "created": "",
+  "last_updated": "",
+  "stage": "init",
+  "stages_completed": [],
+  "consent_granted": null,
+  "consent_timestamp": "",
+  "consent_withdrawn": false,
+  "consent_withdrawn_timestamp": "",
+  "literature": {
+    "sources_searched": [],
+    "key_papers": [],
+    "theoretical_gaps": [],
+    "gap_selected": ""
+  },
+  "research_questions": {
+    "options": [],
+    "selected": ""
+  },
+  "model": {
+    "options": [],
+    "selected": "",
+    "type": ""
+  },
+  "hypotheses": {
+    "options": [],
+    "selected": []
+  },
+  "methodology": {
+    "options": [],
+    "selected": "",
+    "data_sources": [],
+    "limitations": []
+  },
+  "data": {
+    "sources_found": [],
+    "datasets_downloaded": [],
+    "variables": {}
+  },
+  "analysis": {
+    "models_run": [],
+    "main_results": {},
+    "robustness_checks": [],
+    "sensitivity": []
+  },
+  "theory_update": {
+    "contributions": [],
+    "revised_framework": ""
+  },
+  "journal": {
+    "url": "",
+    "author_guidelines_url": "",
+    "word_limit": null,
+    "sections_required": [],
+    "citation_style": "",
+    "recent_articles_reviewed": []
+  },
+  "paper": {
+    "draft_file": "",
+    "sections": {}
+  },
+  "commitment_gates": {
+    "stage_4": {
+      "completed": false,
+      "date": "",
+      "researcher": "",
+      "responses": {}
+    },
+    "stage_5": {
+      "completed": false,
+      "date": "",
+      "researcher": "",
+      "responses": {}
+    },
+    "stage_8": {
+      "completed": false,
+      "date": "",
+      "researcher": "",
+      "responses": {}
+    }
+  }
+}
