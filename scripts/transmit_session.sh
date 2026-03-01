@@ -5,15 +5,16 @@
 # Usage: bash scripts/transmit_session.sh [path/to/workflow_state.json]
 #
 # Requirements:
-#   - PA_AGENT_DATA_TOKEN environment variable set to a GitHub PAT with Issues write
-#     access to edmundpokuadu-eng/PA-Agent-Data
-#   - curl installed
+#   - gh CLI installed and authenticated (https://cli.github.com)
 #   - jq installed (optional but recommended; falls back to grep)
+#
+# The data collection repo (PA-Agent-Data) is public. Any GitHub user
+# authenticated with `gh auth login` can submit session logs. No special
+# tokens or permissions are needed.
 
 set -euo pipefail
 
 REPO="edmundpokuadu-eng/PA-Agent-Data"
-API_URL="https://api.github.com/repos/${REPO}/issues"
 CHUNK_LIMIT=60000  # Stay under GitHub's 65536 char limit with margin
 
 # --- Argument parsing ---
@@ -46,15 +47,18 @@ if [[ "$WITHDRAWN" == "true" ]]; then
     exit 0
 fi
 
-# --- Check authentication ---
-if [[ -z "${PA_AGENT_DATA_TOKEN:-}" ]]; then
-    echo "ERROR: PA_AGENT_DATA_TOKEN environment variable not set."
-    echo "Set it to a GitHub PAT with Issues write access to ${REPO}."
-    echo "  export PA_AGENT_DATA_TOKEN='ghp_your_token_here'"
+# --- Check gh CLI ---
+if ! command -v gh &>/dev/null; then
+    echo "ERROR: GitHub CLI (gh) is not installed."
+    echo "Install it from https://cli.github.com and run 'gh auth login' to authenticate."
     exit 1
 fi
 
-AUTH_HEADER="Authorization: token ${PA_AGENT_DATA_TOKEN}"
+if ! gh auth status &>/dev/null; then
+    echo "ERROR: GitHub CLI is not authenticated."
+    echo "Run 'gh auth login' to authenticate with your GitHub account."
+    exit 1
+fi
 
 # --- Locate session log ---
 # Claude Code stores session logs in ~/.claude/projects/<slug>/<uuid>.jsonl
@@ -97,50 +101,6 @@ ${LOG_CONTENT}
 
 BODY_LENGTH=${#FULL_BODY}
 
-# --- Helper: create a GitHub issue ---
-create_issue() {
-    local title="$1"
-    local body="$2"
-    local labels="$3"
-
-    # Escape the body for JSON
-    local escaped_body
-    escaped_body=$(printf '%s' "$body" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '%s' "$body" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g' | awk '{printf "%s\\n", $0}' | sed '$ s/\\n$//')
-
-    # If python3 was used, escaped_body already has quotes; if sed fallback, wrap in quotes
-    if command -v python3 &>/dev/null; then
-        local json_payload="{\"title\":\"${title}\",\"body\":${escaped_body},\"labels\":[${labels}]}"
-    else
-        local json_payload="{\"title\":\"${title}\",\"body\":\"${escaped_body}\",\"labels\":[${labels}]}"
-    fi
-
-    local response
-    response=$(curl -s -w "\n%{http_code}" -X POST "$API_URL" \
-        -H "$AUTH_HEADER" \
-        -H "Accept: application/vnd.github+json" \
-        -H "Content-Type: application/json" \
-        -d "$json_payload")
-
-    local http_code
-    http_code=$(echo "$response" | tail -1)
-    local response_body
-    response_body=$(echo "$response" | sed '$d')
-
-    if [[ "$http_code" == "201" ]]; then
-        local issue_number
-        if command -v jq &>/dev/null; then
-            issue_number=$(echo "$response_body" | jq -r '.number')
-        else
-            issue_number=$(echo "$response_body" | grep -o '"number":[0-9]*' | head -1 | sed 's/"number"://')
-        fi
-        echo "$issue_number"
-    else
-        echo "ERROR: Failed to create issue (HTTP $http_code)" >&2
-        echo "$response_body" >&2
-        echo ""
-    fi
-}
-
 # --- Transmit ---
 echo "Transmitting session ${SESSION_ID}..."
 echo "Payload size: ${BODY_LENGTH} characters"
@@ -148,21 +108,23 @@ echo "Payload size: ${BODY_LENGTH} characters"
 if [[ $BODY_LENGTH -le $CHUNK_LIMIT ]]; then
     # Single-part submission
     echo "Single-part submission..."
-    ISSUE_NUM=$(create_issue \
-        "Session: ${SESSION_ID}" \
-        "$FULL_BODY" \
-        "\"session-log\",\"single-part\"")
+    ISSUE_URL=$(gh issue create \
+        --repo "$REPO" \
+        --title "Session: ${SESSION_ID}" \
+        --body "$FULL_BODY" \
+        --label "session-log,single-part" 2>&1)
 
-    if [[ -n "$ISSUE_NUM" ]]; then
-        echo "SUCCESS: Session log submitted as issue #${ISSUE_NUM}"
-        echo "URL: https://github.com/${REPO}/issues/${ISSUE_NUM}"
+    if [[ $? -eq 0 ]]; then
+        echo "SUCCESS: Session log submitted."
+        echo "URL: ${ISSUE_URL}"
     else
-        echo "FAILED: Could not create issue. Check your token and permissions."
+        echo "FAILED: Could not create issue."
+        echo "$ISSUE_URL"
         exit 1
     fi
 else
     # Multi-part submission
-    NUM_CHUNKS=$(( (BODY_LENGTH + CHUNK_LIMIT - 1) / CHUNK_LIMIT ))
+    NUM_CHUNKS=$(( (${#LOG_CONTENT} + CHUNK_LIMIT - 1) / CHUNK_LIMIT ))
     echo "Multi-part submission: ${NUM_CHUNKS} chunks needed..."
 
     # Create manifest issue first
@@ -171,7 +133,6 @@ else
 **Submission Timestamp:** ${TIMESTAMP}
 **Total Size:** ${BODY_LENGTH} characters
 **Chunks:** ${NUM_CHUNKS}
-**Chunk Issues:** (listed below as they are created)
 
 ### Workflow State
 
@@ -179,21 +140,26 @@ else
 ${WORKFLOW_CONTENT}
 \`\`\`"
 
-    MANIFEST_NUM=$(create_issue \
-        "Session: ${SESSION_ID} [Manifest]" \
-        "$MANIFEST_BODY" \
-        "\"session-log\",\"manifest\"")
+    MANIFEST_URL=$(gh issue create \
+        --repo "$REPO" \
+        --title "Session: ${SESSION_ID} [Manifest]" \
+        --body "$MANIFEST_BODY" \
+        --label "session-log,manifest" 2>&1)
 
-    if [[ -z "$MANIFEST_NUM" ]]; then
+    if [[ $? -ne 0 ]]; then
         echo "FAILED: Could not create manifest issue."
+        echo "$MANIFEST_URL"
         exit 1
     fi
-    echo "Manifest issue: #${MANIFEST_NUM}"
+    echo "Manifest: ${MANIFEST_URL}"
+
+    # Extract manifest issue number from URL
+    MANIFEST_NUM=$(echo "$MANIFEST_URL" | grep -o '[0-9]*$')
 
     # Split and submit chunks
-    CHUNK_ISSUES=()
     OFFSET=0
     CHUNK_NUM=1
+    CHUNK_URLS=()
 
     while [[ $OFFSET -lt ${#LOG_CONTENT} ]]; do
         CHUNK_TEXT="${LOG_CONTENT:$OFFSET:$CHUNK_LIMIT}"
@@ -205,14 +171,15 @@ ${WORKFLOW_CONTENT}
 ${CHUNK_TEXT}
 \`\`\`"
 
-        CHUNK_ISSUE_NUM=$(create_issue \
-            "Session: ${SESSION_ID} [Chunk ${CHUNK_NUM}/${NUM_CHUNKS}]" \
-            "$CHUNK_BODY" \
-            "\"session-log\",\"chunk\"")
+        CHUNK_URL=$(gh issue create \
+            --repo "$REPO" \
+            --title "Session: ${SESSION_ID} [Chunk ${CHUNK_NUM}/${NUM_CHUNKS}]" \
+            --body "$CHUNK_BODY" \
+            --label "session-log,chunk" 2>&1)
 
-        if [[ -n "$CHUNK_ISSUE_NUM" ]]; then
-            echo "  Chunk ${CHUNK_NUM}/${NUM_CHUNKS}: issue #${CHUNK_ISSUE_NUM}"
-            CHUNK_ISSUES+=("$CHUNK_ISSUE_NUM")
+        if [[ $? -eq 0 ]]; then
+            echo "  Chunk ${CHUNK_NUM}/${NUM_CHUNKS}: ${CHUNK_URL}"
+            CHUNK_URLS+=("$CHUNK_URL")
         else
             echo "  WARNING: Chunk ${CHUNK_NUM} failed to upload."
         fi
@@ -222,11 +189,8 @@ ${CHUNK_TEXT}
     done
 
     echo ""
-    echo "SUCCESS: Session log submitted in ${#CHUNK_ISSUES[@]} chunks."
-    echo "Manifest: https://github.com/${REPO}/issues/${MANIFEST_NUM}"
-    for cn in "${CHUNK_ISSUES[@]}"; do
-        echo "  Chunk: https://github.com/${REPO}/issues/${cn}"
-    done
+    echo "SUCCESS: Session log submitted in ${#CHUNK_URLS[@]} chunks."
+    echo "Manifest: ${MANIFEST_URL}"
 fi
 
 echo ""

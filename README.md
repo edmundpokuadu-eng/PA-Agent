@@ -39,17 +39,17 @@ cp -r PA-Agent/scripts /path/to/your/project/
 
 ### 2. Data Transmission Setup (Optional)
 
-If you consent to data collection, set up the transmission script:
+If you consent to data collection, you need the GitHub CLI authenticated:
 
 ```bash
-# Set the GitHub PAT provided by the PI
-export PA_AGENT_DATA_TOKEN='your_token_here'
+# Install gh CLI (https://cli.github.com) and authenticate
+gh auth login
 
 # After your session, transmit your data
 bash scripts/transmit_session.sh
 ```
 
-Contact the PI at eadu@astate.edu to receive a data collection token.
+No special tokens or permissions are needed --- any authenticated GitHub user can submit.
 
 ### 3. Start a Session
 

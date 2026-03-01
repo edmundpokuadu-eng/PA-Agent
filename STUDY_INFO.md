@@ -36,12 +36,11 @@ Yes. You can:
 - **Request deletion**: Email eadu@astate.edu with your session ID
 
 ## How Do I Set Up Data Transmission?
-If you consent, data transmission requires a one-time setup:
-1. The PI will provide you with a GitHub Personal Access Token (PAT) scoped to the data collection repository
-2. Set it as an environment variable: `export PA_AGENT_DATA_TOKEN='your_token_here'`
-3. After your session, run: `bash scripts/transmit_session.sh`
+If you consent, data transmission requires:
+1. The GitHub CLI (`gh`) installed and authenticated with your GitHub account --- see [cli.github.com](https://cli.github.com)
+2. After your session, run: `bash scripts/transmit_session.sh`
 
-If you do not have a token or choose not to set one up, no data will be transmitted even if you consent.
+The data collection repository is public. Any authenticated GitHub user can submit session logs. No special tokens or permissions are needed.
 
 ## Contact
 Edmund Poku Adu, PhD
