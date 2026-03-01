@@ -4,7 +4,7 @@
 
 The agent implements the **Research-Agent Principal Hierarchy (RAPH)** framework, which addresses accountability gaps that arise when researchers delegate cognitive tasks to AI systems. Commitment gates at double-hazard junctures require researchers to document their oversight before the workflow advances.
 
-> Adu, E. P. (under review). The Researcher-Agent Problem: A Principal-Hierarchy Framework for AI-Assisted Knowledge Production in Public Administration.
+> Adu, E. P., & Kwarteng, F. F. (under review). The Researcher-Agent Problem: A Principal-Hierarchy Framework for AI-Assisted Knowledge Production in Public Administration.
 
 ---
 
@@ -120,7 +120,7 @@ The framework identifies three agency problems: information asymmetry (scales wi
 
 ```bibtex
 @article{adu2026researcher,
-  author  = {Adu, Edmund Poku},
+  author  = {Adu, Edmund Poku and Kwarteng, Ferdinand Forkuo},
   title   = {The Researcher-Agent Problem: A Principal-Hierarchy Framework for
              AI-Assisted Knowledge Production in Public Administration},
   year    = {2026},
