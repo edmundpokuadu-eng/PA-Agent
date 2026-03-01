@@ -17,7 +17,7 @@ set -euo pipefail
 # --- Configuration ---
 # The PA-Agent study data endpoint. This is a Google Apps Script web app
 # that writes submitted session data to a private Google Sheet.
-ENDPOINT_URL="__PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE__"
+ENDPOINT_URL="https://script.google.com/macros/s/AKfycbyRrhH6P9rbDgkxV0LjVGZRDmHhet2ukPcpNLDYOPiQhEjc6e7Ga5164yHC7iIT88q-QQ/exec"
 
 # --- Argument parsing ---
 WORKFLOW_STATE="${1:-./workflow_state.json}"
