@@ -1,0 +1,262 @@
+{
+  "session_id": "PA_20260227_1400",
+  "agent": "PublicAdmin",
+  "field": "Public Administration",
+  "topic": "AI agents in public administration research",
+  "target_journal": "Public Administration Review",
+  "created": "2026-02-27T14:00:00",
+  "last_updated": "2026-02-27T15:00:00",
+  "stage": "stage10_complete",
+  "stages_completed": ["stage1_literature","stage2_journal","stage3_rq","stage4_theory","stage5_hypotheses","stage6_methodology","stage7_data","stage8_analysis","stage9_theory_update","stage10_manuscript"],
+  "literature": {
+    "sources_searched": [
+      "Local Zotero corpus (35 papers, 12 AI-related)",
+      "WebSearch: AI agents public administration governance 2023-2025",
+      "WebSearch: agentic AI bureaucracy LLMs government decision-making",
+      "WebSearch: AI research workflow automation academic productivity",
+      "WebSearch: LLM agents social science research literature review PAR",
+      "WebSearch: AI agent research assistant academic workflow systematic review",
+      "WebSearch: algorithmic governance street-level bureaucracy AI automation accountability",
+      "WebSearch: generative AI ChatGPT public administration research methods replication"
+    ],
+    "key_papers": [
+      {
+        "title": "Human-AI Interactions in Public Sector Decision Making: Automation Bias and Skeuomorphism",
+        "journal": "JPART",
+        "year": 2023,
+        "source": "local_zotero",
+        "relevance": "automation bias in government decisions; human-AI teaming"
+      },
+      {
+        "title": "Explaining Why the Computer Says No: Algorithmic Transparency in the Public Sector",
+        "journal": "PAR",
+        "year": 2023,
+        "source": "local_zotero",
+        "relevance": "transparency and explainability in AI government systems"
+      },
+      {
+        "title": "Accountable Artificial Intelligence: Holding Algorithms to Account",
+        "journal": "PAR",
+        "year": 2021,
+        "source": "local_zotero",
+        "relevance": "accountability frameworks for algorithmic decision-making"
+      },
+      {
+        "title": "Smart Technology and the Emergence of Algorithmic Bureaucracy",
+        "journal": "PAR",
+        "year": 2020,
+        "source": "local_zotero",
+        "relevance": "smart technology reshaping bureaucratic functions"
+      },
+      {
+        "title": "Bounded Rationality, Satisficing, Artificial Intelligence, and Decision-Making in Public Administration",
+        "journal": "PAR",
+        "year": 2022,
+        "source": "local_zotero",
+        "relevance": "cognitive limits and AI as decision-support in PA"
+      },
+      {
+        "title": "Artificial Intelligence, Discretion, and Bureaucracy",
+        "journal": "ARPA",
+        "year": 2019,
+        "author": "Bullock",
+        "source": "web_search",
+        "relevance": "AI effects on discretion at street level; foundational piece"
+      },
+      {
+        "title": "Public Administration with, of, and through AI: Toward a New Paradigm in the Era of Intelligence",
+        "journal": "International Public Management Journal",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "triadic paradigm: PA with AI / of AI / through AI"
+      },
+      {
+        "title": "Oversight Structures for Agentic AI in Public-Sector Organizations",
+        "journal": "arXiv",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "governance of agentic AI systems in public sector"
+      },
+      {
+        "title": "The Agentic State",
+        "journal": "Vision Paper",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "paradigm-level claim: agentic AI = new era of government; comparable to bureaucratic state"
+      },
+      {
+        "title": "Agentic AI for Scientific Discovery: A Survey of Progress, Challenges, and Future Directions",
+        "journal": "arXiv",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "state-of-the-art agentic research workflows; LitSearch, ResearchAgent, Agent Laboratory"
+      },
+      {
+        "title": "LLM-Assisted Systematic Review (emergence of LLMs as review tools)",
+        "journal": "JAMIA / PMC",
+        "year": 2024,
+        "source": "web_search",
+        "relevance": "LLM automation of literature reviews; accuracy rates 99%+"
+      },
+      {
+        "title": "Algorithmic Discrimination in Public Service Provision",
+        "journal": "JPART",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "equity and bias in algorithmic public services"
+      },
+      {
+        "title": "Street-Level Bureaucracy in the Age of AI: Discretion, Accountability, and Organizational Implications",
+        "journal": "Springer",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "AI effects on SLB discretion, accountability, organizations"
+      },
+      {
+        "title": "ChatGPT as Research Scientist",
+        "journal": "PNAS",
+        "year": 2024,
+        "source": "web_search",
+        "relevance": "AI as research librarian, ethicist, data generator; replication crisis concerns"
+      },
+      {
+        "title": "Governing with Artificial Intelligence (OECD 2025)",
+        "journal": "OECD",
+        "year": 2025,
+        "source": "web_search",
+        "relevance": "200+ real-world AI government applications; 70% process AI, only 33% policy AI"
+      }
+    ],
+    "theoretical_gaps": [
+      {
+        "id": 1,
+        "label": "The Researcher-as-User Gap",
+        "description": "PA literature treats AI as a tool deployed in government service delivery and citizen-facing decision systems. The public administration *researcher* as the primary user of agentic AI has not been theorized. The field has produced no normative or descriptive account of how AI agents should or do reshape the scholarly research production process itself.",
+        "strength": "HIGH",
+        "why_PAR": "PAR regularly publishes methodological and disciplinary self-reflection pieces. A paper theorizing AI's role in the PA research enterprise has obvious audience fit."
+      },
+      {
+        "id": 2,
+        "label": "The Methodological Equity Gap",
+        "description": "Methodological inequality structures PA scholarship: well-funded R1 teams with dedicated statisticians produce high-rigor quantitative work that smaller institutions cannot replicate. AI research agents could function as a great equalizer, democratizing access to methodological sophistication. No theory or empirical test of this democratization effect exists in PA.",
+        "strength": "HIGH",
+        "why_PAR": "PAR has strong tradition of equity-inflected governance research. Methodological equity as a justice issue is novel and timely."
+      },
+      {
+        "id": 3,
+        "label": "The Principal-Hierarchy Gap for Research Agents",
+        "description": "Existing agentic AI governance literature (Shavit & Agarwal, OpenAI 2024; arXiv oversight structures 2025) theorizes principal hierarchies for government-facing agents (citizen → agency → model). No framework exists for the scholarly research context, where the researcher is principal, the agent is operator, and the journal/field serves as governance authority. IRB, data provenance, replication, and authorship norms all require rethinking.",
+        "strength": "VERY HIGH",
+        "why_PAR": "PAR published the accountability and algorithmic transparency pieces (2021, 2023). A theory of research-agent accountability is a direct extension of that literature stream."
+      },
+      {
+        "id": 4,
+        "label": "The Epistemological Credibility Gap",
+        "description": "PA has not theorized what it means for knowledge claims to be produced partly through AI inference and reasoning. When an agent conducts literature synthesis, interprets coefficients, and drafts findings, what standards of epistemological credibility apply? The replication crisis literature (PNAS 2024) raises this for science broadly, but PA has not developed field-specific norms.",
+        "strength": "MEDIUM",
+        "why_PAR": "More philosophical / epistemological; may be better suited for Governance or Administration & Society. Still viable for PAR if operationalized with concrete standards."
+      },
+      {
+        "id": 5,
+        "label": "The Workflow-Adoption Gap",
+        "description": "No empirical baseline exists for how PA researchers currently use or plan to use AI agents in their research workflows. Survey or experimental evidence on adoption rates, barriers, and outcomes would provide the descriptive foundation the field needs before normative or prescriptive frameworks can be built.",
+        "strength": "MEDIUM",
+        "why_PAR": "Descriptive/empirical PAR pieces can succeed, but without a strong theoretical frame this risks being atheoretical. Works better as a companion piece to Gap 3.",
+        "note": "This could be the empirical component of a Gap 3 paper."
+      }
+    ],
+    "gap_selected": "Combined Gaps 1+2+5: Principal-hierarchy framework for research agents + researcher-as-user theory + workflow adoption case study (PA-Agent as central empirical case)"
+  },
+  "research_questions": {
+    "options": [
+      "A: Principal-hierarchy governance framework — how does AI delegation reshape PA knowledge production principal-agent relationships, and what governance framework ensures credibility, equity, accountability?",
+      "B: Democratization — does agentic AI democratize methodological rigor, and under what governance conditions?",
+      "C: Paradigm shift — does agentic AI constitute a PA scholarship paradigm shift, and what epistemological norms must the field adopt?",
+      "D: Workflow adoption — how do PA scholars structure AI into workflows, and what governance gaps emerge?"
+    ],
+    "selected": "A: How does delegating scholarly work to agentic AI reshape the principal-agent relationships that govern knowledge production in public administration, and what governance framework can ensure credibility, equity, and accountability in AI-assisted PA research? Sub-RQs: (1) Who occupies the roles of principal, agent, and governance authority in AI-assisted PA research workflows? (2) How does the PA-Agent workflow case illustrate accountability gaps when cognitive research tasks are delegated to autonomous AI systems? (3) What institutional adaptations — to IRB protocols, authorship norms, and replication standards — does AI-assisted research require?"
+  },
+  "model": {
+    "options": [
+      "1: Research-Agent Principal Hierarchy — three-tier governance (field/IRB → researcher → AI agent); three agency problems (information asymmetry, moral hazard, adverse selection); tiered monitoring prescription",
+      "2: Inferential Discretion Theory — AI agent as street-level algorithm exercising inferential discretion in research; extends Bullock 2019 from government AI to research AI",
+      "3: Competing Institutional Logics — professional expertise logic vs. algorithmic efficiency logic; logic blending governance framework"
+    ],
+    "selected": "1: Research-Agent Principal Hierarchy — three-tier governance framework; Mitnick, Jensen-Meckling, Waterman & Meier, Moe; information asymmetry + moral hazard + adverse selection as the three agency problems in research workflows; tiered oversight protocol as governance prescription",
+    "type": "Formal theoretical framework with case study application; analytic generalization via theoretical propositions (Yin 2014)"
+  },
+  "hypotheses": {
+    "options": [],
+    "selected": [
+      "P1 — Information Asymmetry: As cognitive task complexity increases across research workflow stages, information asymmetry between researcher-principal and AI agent increases, raising the probability of undetected inferential error proportionally.",
+      "P2 — Moral Hazard: Researcher-principals systematically under-monitor AI agent outputs when task reversibility is low and iteration costs are high, producing moral hazard concentrated at stages where errors are most consequential (Stages 4, 6, 8).",
+      "P3 — Adverse Selection: The governance burden of AI-assisted research falls disproportionately on researchers at resource-constrained institutions, because solo researchers with minimal infrastructure face highest monitoring costs and lowest error-detection capacity — amplifying rather than attenuating methodological inequality.",
+      "P4 — Tiered Monitoring Sufficiency: A governance framework calibrating researcher oversight intensity to the joint function of task cognitive complexity and task reversibility can reduce agency costs without eliminating efficiency gains, provided monitoring protocols are transparent and auditable."
+    ]
+  },
+  "methodology": {
+    "options": [],
+    "selected": "Single instrumental case study (Stake 1995; Yin 2014). Unit of analysis: the workflow stage (10 stages = 10 within-case observations). Analytic strategy: pattern matching against P1-P4; explanation building for divergent cases. Generalizability claim: analytic generalization to theory, not population.",
+    "data_sources": [
+      "Stream 1: Session transcripts — Claude Code conversation logs (.jsonl); verbatim record of every delegation event, agent output, and researcher response. Coded for: task complexity tier, researcher response type (accept/override/iterate), error-detection events.",
+      "Stream 2: Workflow state files — workflow_state.json; structured record of stage completion decisions and commitment-point choices. Coded for: stage advancement decisions, lock-in points, stage consistency.",
+      "Stream 3: Output artifacts — papers, R scripts, framework memos produced at each stage. Coded for: internal consistency, embedded agent errors, monitoring evidence.",
+      "Stream 4: Researcher memos — prospective structured memos at each stage documenting delegation decisions, verification performed, and acknowledged monitoring gaps. Reflexivity mechanism."
+    ],
+    "limitations": [
+      "L1: Single case — analytic generalization only, not statistical. Future work: comparative cases across institution types and agent platforms.",
+      "L2: Researcher-as-subject reflexivity — mitigated by verbatim session log, prospective memos, and time-stamped workflow_state.json.",
+      "L3: Single agent platform (Claude/Anthropic) — patterns may differ across GPT-4o, Gemini, local LLMs.",
+      "L4: Task scope limited to manuscript production workflow — other research tasks (fieldwork, surveys) may involve different agency profiles.",
+      "L5: Emerging phenomenon — framework calibrated to 2025-2026 agent capabilities; requires updating as autonomy increases."
+    ]
+  },
+  "data": {
+    "sources_found": [],
+    "datasets_downloaded": [],
+    "variables": {}
+  },
+  "analysis": {
+    "models_run": [],
+    "main_results": {},
+    "robustness_checks": [],
+    "sensitivity": []
+  },
+  "theory_update": {
+    "contributions": [],
+    "revised_framework": ""
+  },
+  "journal": {
+    "url": "https://onlinelibrary.wiley.com/journal/15406210",
+    "author_guidelines_url": "https://onlinelibrary.wiley.com/page/journal/15406210/homepage/forauthors.html",
+    "word_limit": 9000,
+    "sections_required": ["Abstract", "Introduction", "Theory/Conceptual Framework", "Method", "Results/Analysis", "Discussion", "Conclusion", "References"],
+    "citation_style": "APA",
+    "recent_articles_reviewed": [
+      "Human-AI Interactions in Public Sector Decision Making (JPART 2023)",
+      "Explaining Why the Computer Says No (PAR 2023)",
+      "Accountable Artificial Intelligence (PAR 2021)",
+      "Smart Technology and Algorithmic Bureaucracy (PAR 2020)",
+      "Bounded Rationality, Satisficing, AI, Decision-Making (PAR 2022)"
+    ],
+    "notes": "PAR is flagship ASPA journal. Wiley. Impact Factor ~7. Publishes theory, empirical, methodological, and practice-oriented pieces. Prefers clear public administration angle over generic AI or CS framing. Recent AI special sections confirm appetite for this topic."
+  },
+  "paper": {
+    "draft_file": "manuscript/par_paper_main.tex",
+    "pdf": "manuscript/par_paper_main.pdf",
+    "pages": 22,
+    "status": "complete_first_draft",
+    "sections": {
+      "abstract": "done",
+      "introduction": "done",
+      "literature_review": "done",
+      "theoretical_framework": "done",
+      "method": "done",
+      "findings": "done",
+      "discussion": "done",
+      "conclusion": "done",
+      "practitioner_points": "done",
+      "references": "done"
+    }
+  }
+}
