@@ -24,7 +24,7 @@ If you consent, the following data will be collected at the end of your session:
 - Direct quotes from sessions may be used in publications only after removing all identifying information
 
 ## Data Storage and Security
-- Session logs are transmitted to a private GitHub repository accessible only to the principal investigator
+- Session logs are transmitted via a secure HTTPS endpoint to a private data store accessible only to the principal investigator
 - Data will be retained for the duration of the study and any subsequent publications (estimated 5 years)
 - No session data is shared with third parties, including Anthropic (the maker of the AI system)
 

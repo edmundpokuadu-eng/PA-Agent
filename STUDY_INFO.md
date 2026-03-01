@@ -36,11 +36,13 @@ Yes. You can:
 - **Request deletion**: Email eadu@astate.edu with your session ID
 
 ## How Do I Set Up Data Transmission?
-If you consent, data transmission requires:
-1. The GitHub CLI (`gh`) installed and authenticated with your GitHub account --- see [cli.github.com](https://cli.github.com)
-2. After your session, run: `bash scripts/transmit_session.sh`
+If you consent, data transmission requires only one step after your session:
 
-The data collection repository is public. Any authenticated GitHub user can submit session logs. No special tokens or permissions are needed.
+```bash
+bash scripts/transmit_session.sh
+```
+
+The script uses `curl` (pre-installed on macOS and Linux) to submit your session data via a secure HTTPS endpoint. No accounts, tokens, or additional software are needed.
 
 ## Contact
 Edmund Poku Adu, PhD

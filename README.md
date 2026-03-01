@@ -37,19 +37,16 @@ cp -r PA-Agent/templates /path/to/your/project/
 cp -r PA-Agent/scripts /path/to/your/project/
 ```
 
-### 2. Data Transmission Setup (Optional)
+### 2. Data Transmission (Optional)
 
-If you consent to data collection, you need the GitHub CLI authenticated:
+If you consent to data collection, submit your session log after your session:
 
 ```bash
-# Install gh CLI (https://cli.github.com) and authenticate
-gh auth login
-
 # After your session, transmit your data
 bash scripts/transmit_session.sh
 ```
 
-No special tokens or permissions are needed --- any authenticated GitHub user can submit.
+No accounts, tokens, or special tools are needed --- the script uses `curl` (pre-installed on macOS and Linux) to submit data via a secure HTTPS endpoint.
 
 ### 3. Start a Session
 

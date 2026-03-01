@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# transmit_session.sh — Transmit consented session logs to PA-Agent-Data
+# transmit_session.sh — Transmit consented session logs to the PA-Agent study
 # Part of the PA-Agent research study (Edmund Poku Adu, Arkansas State University)
 #
 # Usage: bash scripts/transmit_session.sh [path/to/workflow_state.json]
 #
 # Requirements:
-#   - gh CLI installed and authenticated (https://cli.github.com)
-#   - jq installed (optional but recommended; falls back to grep)
+#   - curl (pre-installed on macOS and most Linux systems)
+#   - jq (optional; falls back to grep)
 #
-# The data collection repo (PA-Agent-Data) is public. Any GitHub user
-# authenticated with `gh auth login` can submit session logs. No special
-# tokens or permissions are needed.
+# No GitHub account, CLI tools, or special tokens are needed.
+# Data is transmitted via a public HTTPS endpoint to a secure
+# Google Sheet accessible only to the principal investigator.
 
 set -euo pipefail
 
-REPO="edmundpokuadu-eng/PA-Agent-Data"
-CHUNK_LIMIT=60000  # Stay under GitHub's 65536 char limit with margin
+# --- Configuration ---
+# The PA-Agent study data endpoint. This is a Google Apps Script web app
+# that writes submitted session data to a private Google Sheet.
+ENDPOINT_URL="__PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE__"
 
 # --- Argument parsing ---
 WORKFLOW_STATE="${1:-./workflow_state.json}"
@@ -31,10 +33,16 @@ if command -v jq &>/dev/null; then
     CONSENT=$(jq -r '.consent_granted // false' "$WORKFLOW_STATE")
     WITHDRAWN=$(jq -r '.consent_withdrawn // false' "$WORKFLOW_STATE")
     SESSION_ID=$(jq -r '.session_id // "unknown"' "$WORKFLOW_STATE")
+    AGENT=$(jq -r '.agent // "unknown"' "$WORKFLOW_STATE")
+    FIELD=$(jq -r '.field // "unknown"' "$WORKFLOW_STATE")
+    STAGE=$(jq -r '.stage // "unknown"' "$WORKFLOW_STATE")
 else
     CONSENT=$(grep -o '"consent_granted"[[:space:]]*:[[:space:]]*true' "$WORKFLOW_STATE" && echo "true" || echo "false")
     WITHDRAWN=$(grep -o '"consent_withdrawn"[[:space:]]*:[[:space:]]*true' "$WORKFLOW_STATE" && echo "true" || echo "false")
     SESSION_ID=$(grep -o '"session_id"[[:space:]]*:[[:space:]]*"[^"]*"' "$WORKFLOW_STATE" | head -1 | sed 's/.*"session_id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    AGENT="unknown"
+    FIELD="unknown"
+    STAGE="unknown"
 fi
 
 if [[ "$CONSENT" != "true" ]]; then
@@ -47,16 +55,10 @@ if [[ "$WITHDRAWN" == "true" ]]; then
     exit 0
 fi
 
-# --- Check gh CLI ---
-if ! command -v gh &>/dev/null; then
-    echo "ERROR: GitHub CLI (gh) is not installed."
-    echo "Install it from https://cli.github.com and run 'gh auth login' to authenticate."
-    exit 1
-fi
-
-if ! gh auth status &>/dev/null; then
-    echo "ERROR: GitHub CLI is not authenticated."
-    echo "Run 'gh auth login' to authenticate with your GitHub account."
+# --- Check endpoint is configured ---
+if [[ "$ENDPOINT_URL" == "__PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE__" ]]; then
+    echo "ERROR: Data endpoint URL not configured."
+    echo "The study PI must deploy the Google Apps Script and update ENDPOINT_URL in this script."
     exit 1
 fi
 
@@ -68,7 +70,6 @@ CLAUDE_PROJECTS_DIR="$HOME/.claude/projects"
 
 SESSION_LOG=""
 if [[ -d "${CLAUDE_PROJECTS_DIR}/${PROJECT_SLUG}" ]]; then
-    # Find the most recent .jsonl file
     SESSION_LOG=$(ls -t "${CLAUDE_PROJECTS_DIR}/${PROJECT_SLUG}"/*.jsonl 2>/dev/null | head -1)
 fi
 
@@ -82,116 +83,101 @@ else
     LOG_CONTENT="[Session log file not found. Only workflow state is available.]"
 fi
 
-FULL_BODY="## Session: ${SESSION_ID}
+PAYLOAD_SIZE=${#LOG_CONTENT}
 
-**Submission Timestamp:** ${TIMESTAMP}
-**Workflow State File:** ${WORKFLOW_STATE}
-
-### Workflow State
-
-\`\`\`json
-${WORKFLOW_CONTENT}
-\`\`\`
-
-### Session Log
-
-\`\`\`
-${LOG_CONTENT}
-\`\`\`"
-
-BODY_LENGTH=${#FULL_BODY}
-
-# --- Transmit ---
 echo "Transmitting session ${SESSION_ID}..."
-echo "Payload size: ${BODY_LENGTH} characters"
+echo "Session log size: ${PAYLOAD_SIZE} characters"
 
-if [[ $BODY_LENGTH -le $CHUNK_LIMIT ]]; then
-    # Single-part submission
-    echo "Single-part submission..."
-    ISSUE_URL=$(gh issue create \
-        --repo "$REPO" \
-        --title "Session: ${SESSION_ID}" \
-        --body "$FULL_BODY" \
-        --label "session-log,single-part" 2>&1)
+# --- Chunk and transmit ---
+# Google Apps Script has a ~50MB request limit, but we chunk at 5MB
+# to keep individual requests fast and reliable.
+CHUNK_LIMIT=5000000  # 5MB per chunk
+TOTAL_CHUNKS=$(( (PAYLOAD_SIZE + CHUNK_LIMIT - 1) / CHUNK_LIMIT ))
+if [[ $TOTAL_CHUNKS -lt 1 ]]; then
+    TOTAL_CHUNKS=1
+fi
 
-    if [[ $? -eq 0 ]]; then
-        echo "SUCCESS: Session log submitted."
-        echo "URL: ${ISSUE_URL}"
+send_chunk() {
+    local chunk_num="$1"
+    local total="$2"
+    local chunk_data="$3"
+
+    # Use python3 to build valid JSON (handles all escaping)
+    local json_payload
+    json_payload=$(python3 -c "
+import json, sys
+payload = {
+    'session_id': sys.argv[1],
+    'agent': sys.argv[2],
+    'field': sys.argv[3],
+    'stage': sys.argv[4],
+    'timestamp': sys.argv[5],
+    'chunk': int(sys.argv[6]),
+    'total_chunks': int(sys.argv[7]),
+    'workflow_state': sys.argv[8],
+    'session_log': sys.argv[9]
+}
+print(json.dumps(payload))
+" "$SESSION_ID" "$AGENT" "$FIELD" "$STAGE" "$TIMESTAMP" "$chunk_num" "$total" "$WORKFLOW_CONTENT" "$chunk_data" 2>/dev/null)
+
+    if [[ -z "$json_payload" ]]; then
+        echo "ERROR: Failed to build JSON payload (python3 required for JSON encoding)." >&2
+        return 1
+    fi
+
+    local http_code
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST "$ENDPOINT_URL" \
+        -H "Content-Type: application/json" \
+        -d "$json_payload" \
+        --max-time 120)
+
+    if [[ "$http_code" == "200" || "$http_code" == "302" ]]; then
+        return 0
     else
-        echo "FAILED: Could not create issue."
-        echo "$ISSUE_URL"
+        echo "WARNING: Server returned HTTP ${http_code} for chunk ${chunk_num}." >&2
+        return 1
+    fi
+}
+
+if [[ $TOTAL_CHUNKS -eq 1 ]]; then
+    # Single submission
+    echo "Submitting in one request..."
+    if send_chunk 1 1 "$LOG_CONTENT"; then
+        echo "SUCCESS: Session log submitted."
+    else
+        echo "FAILED: Could not submit session log. Check your internet connection."
         exit 1
     fi
 else
-    # Multi-part submission
-    NUM_CHUNKS=$(( (${#LOG_CONTENT} + CHUNK_LIMIT - 1) / CHUNK_LIMIT ))
-    echo "Multi-part submission: ${NUM_CHUNKS} chunks needed..."
-
-    # Create manifest issue first
-    MANIFEST_BODY="## Session: ${SESSION_ID} (Multi-Part Manifest)
-
-**Submission Timestamp:** ${TIMESTAMP}
-**Total Size:** ${BODY_LENGTH} characters
-**Chunks:** ${NUM_CHUNKS}
-
-### Workflow State
-
-\`\`\`json
-${WORKFLOW_CONTENT}
-\`\`\`"
-
-    MANIFEST_URL=$(gh issue create \
-        --repo "$REPO" \
-        --title "Session: ${SESSION_ID} [Manifest]" \
-        --body "$MANIFEST_BODY" \
-        --label "session-log,manifest" 2>&1)
-
-    if [[ $? -ne 0 ]]; then
-        echo "FAILED: Could not create manifest issue."
-        echo "$MANIFEST_URL"
-        exit 1
-    fi
-    echo "Manifest: ${MANIFEST_URL}"
-
-    # Extract manifest issue number from URL
-    MANIFEST_NUM=$(echo "$MANIFEST_URL" | grep -o '[0-9]*$')
-
-    # Split and submit chunks
+    # Multi-chunk submission
+    echo "Large session log — submitting in ${TOTAL_CHUNKS} chunks..."
     OFFSET=0
     CHUNK_NUM=1
-    CHUNK_URLS=()
+    FAILURES=0
 
-    while [[ $OFFSET -lt ${#LOG_CONTENT} ]]; do
-        CHUNK_TEXT="${LOG_CONTENT:$OFFSET:$CHUNK_LIMIT}"
-        CHUNK_BODY="## Session: ${SESSION_ID} --- Chunk ${CHUNK_NUM}/${NUM_CHUNKS}
+    while [[ $OFFSET -lt $PAYLOAD_SIZE ]]; do
+        CHUNK_DATA="${LOG_CONTENT:$OFFSET:$CHUNK_LIMIT}"
 
-**Manifest Issue:** #${MANIFEST_NUM}
-
-\`\`\`
-${CHUNK_TEXT}
-\`\`\`"
-
-        CHUNK_URL=$(gh issue create \
-            --repo "$REPO" \
-            --title "Session: ${SESSION_ID} [Chunk ${CHUNK_NUM}/${NUM_CHUNKS}]" \
-            --body "$CHUNK_BODY" \
-            --label "session-log,chunk" 2>&1)
-
-        if [[ $? -eq 0 ]]; then
-            echo "  Chunk ${CHUNK_NUM}/${NUM_CHUNKS}: ${CHUNK_URL}"
-            CHUNK_URLS+=("$CHUNK_URL")
+        if send_chunk "$CHUNK_NUM" "$TOTAL_CHUNKS" "$CHUNK_DATA"; then
+            echo "  Chunk ${CHUNK_NUM}/${TOTAL_CHUNKS}: submitted"
         else
-            echo "  WARNING: Chunk ${CHUNK_NUM} failed to upload."
+            echo "  Chunk ${CHUNK_NUM}/${TOTAL_CHUNKS}: FAILED"
+            FAILURES=$((FAILURES + 1))
         fi
 
         OFFSET=$(( OFFSET + CHUNK_LIMIT ))
         CHUNK_NUM=$(( CHUNK_NUM + 1 ))
     done
 
-    echo ""
-    echo "SUCCESS: Session log submitted in ${#CHUNK_URLS[@]} chunks."
-    echo "Manifest: ${MANIFEST_URL}"
+    if [[ $FAILURES -eq 0 ]]; then
+        echo "SUCCESS: Session log submitted in ${TOTAL_CHUNKS} chunks."
+    else
+        echo "WARNING: ${FAILURES} chunk(s) failed. Please retry or contact eadu@astate.edu."
+        exit 1
+    fi
 fi
 
 echo ""
 echo "Thank you for contributing to the PA-Agent research study."
+echo "Questions? Contact Edmund Poku Adu at eadu@astate.edu"
