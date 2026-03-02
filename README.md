@@ -34,19 +34,11 @@ git clone https://github.com/edmundpokuadu-eng/PA-Agent.git
 cp -r PA-Agent/agents/PublicAdmin /path/to/your/project/.claude/agents/
 cp PA-Agent/shared/workflow_template.json /path/to/your/project/
 cp -r PA-Agent/templates /path/to/your/project/
-cp -r PA-Agent/scripts /path/to/your/project/
 ```
 
 ### 2. Data Transmission (Optional)
 
-If you consent to data collection, submit your session log after your session:
-
-```bash
-# After your session, transmit your data
-bash scripts/transmit_session.sh
-```
-
-No accounts, tokens, or special tools are needed --- the script uses `curl` (pre-installed on macOS and Linux) to submit data via a secure HTTPS endpoint.
+If you consent to data collection, the PI will provide you with the data transmission script after you complete the consent process. Contact eadu@astate.edu for details.
 
 ### 3. Start a Session
 
@@ -93,8 +85,6 @@ PA-Agent/
     workflow_template.json        Workflow state template with consent fields
   templates/
     commitment_gate.md            Commitment gate template with guidance
-  scripts/
-    transmit_session.sh           Session data transmission script
 ```
 
 ---
